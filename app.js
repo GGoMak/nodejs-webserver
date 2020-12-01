@@ -7,6 +7,20 @@ const nunjucks = require('nunjucks');
 const dotenv = require('dotenv');
 const passport = require('passport');
 
+const dateFilter = require('nunjucks-date-filter');
+
+function setUpNunjucks(expressApp) {
+
+  let env = nunjucks.configure('views', {
+      autoescape: true,
+      express: app
+  });
+
+  // note that 'date' is the function name you'll use in the template. As shown in nunjucks-date-filter's readme
+  env.addFilter('date', dateFilter);
+
+}
+
 dotenv.config();
 
 const connect = require('./schemas');
@@ -14,6 +28,7 @@ const connect = require('./schemas');
 const pageRouter = require('./routes/page')
 const authRouter = require('./routes/auth');
 const aboutRouter = require('./routes/about');
+const boardRouter = require('./routes/board');
 const passportConfig = require('./passport');
 
 const app = express();
@@ -25,7 +40,7 @@ nunjucks.configure('views', {
   watch: true,
 });
 connect();
-
+setUpNunjucks();
 
 app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -48,6 +63,7 @@ app.use(passport.session());
 app.use('/', pageRouter);
 app.use('/auth', authRouter);
 app.use('/about', aboutRouter);
+app.use('/board', boardRouter);
 
 app.use((req, res, next) => {
   const error =  new Error(`${req.method} ${req.url} 라우터가 없습니다.`);

@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+  <div class="boards">
+    <form id="board-form" action="/board" method="POST">
+      <textarea id="title" name="title" maxlength="30"></textarea>
+      <textarea id="content" name="content" maxlength="300"></textarea>
+      <button class="btn">글쓰기</button>
+    </form>
+  </div>
+
+  {% for board in boards %}
+  <div class="board">
+    <input type="hidden" value="{{board.author.id}}" class="board-user-id">
+    <input type="hidden" value="{{board.id}}" class="board-id" id="board-id">
+    <div class="board-title">제목 : {{board.title}}</div>
+    <div class="board-author">작성자 : {{board.author.nick}}</div>
+    <div class="board-content">내용 : {{board.content}}</div>
+    <div class="board-createTime">작성일 : {{board.createdAt | date("YYYY.MM.DD hh:mm:ss")}}</div>
+    {% if board.author.id == user.id %}
+    <button class="board_updateBtn" id="update">수정</button>
+    <button class="board-deleteBtn" onclick="deleteBoard('{{board.id}}')">삭제</button>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+<script>
+
+function deleteBoard(id){
+    $.ajax({
+        type: 'DELETE',
+        url: '/board/' + id,
+    }).done(function() {
+        alert("삭제되었습니다.");
+        window.location.reload();
+    }).fail(function (error) {
+        alert(JSON.stringify(error));
+    });
+}
+</script>
+{% endblock %}

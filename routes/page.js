@@ -9,7 +9,7 @@ router.use((req, res, next) => {
 
 router.get('/', async (req, res, next) => {
   res.render('main', {
-    title: 'NodeBird',
+    title: 'WebProgramming',
   });
 });
 
