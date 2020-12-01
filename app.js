@@ -9,12 +9,12 @@ const passport = require('passport');
 
 dotenv.config();
 
+const connect = require('./schemas');
+
 const pageRouter = require('./routes/page')
 const authRouter = require('./routes/auth');
 const aboutRouter = require('./routes/about');
-const { sequelize } = require('./models');
 const passportConfig = require('./passport');
-const { Passport } = require('passport');
 
 const app = express();
 passportConfig();
@@ -24,13 +24,8 @@ nunjucks.configure('views', {
   express: app,
   watch: true,
 });
-sequelize.sync({ force: false })
-  .then(() => {
-    console.log('데이터베이스 연결 성공');
-  })
-  .catch((err) => {
-    console.error(err);
-  });
+connect();
+
 
 app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
