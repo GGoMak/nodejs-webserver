@@ -1,0 +1,68 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="timeline" style="width: 100%;">
+      {% if user %}
+        <div>
+          <form id="board-form" action="/gallery" method="post" enctype="multipart/form-data">
+            <div class="img-preview">
+              <img id="img-preview" src="" style="display: none;" width="250" alt="미리보기">
+              <input id="img-url" type="hidden" name="url">
+            </div>
+            <div>
+              <label id="img-label" for="img">사진 업로드</label>
+              <input id="img" type="file" accept="image/*">
+              <button id="boatd-btn" type="submit" class="btn">사진 올리기</button>
+            </div>
+          </form>
+        </div>
+      {% endif %}
+    </div>
+
+    {% for gallery in gallerys %}
+    <div class="board">
+        <input type="hidden" value="{{gallery.author.id}}" class="gallery-user-id">
+        <input type="hidden" value="{{gallery.id}}" class="board-id" id="gallery-id">
+        <div class="gallery-author" style="margin-bottom: 10px;" id="gallery-author">작성자 : {{gallery.author.nick}}</div>
+        <div class="gallery-img"><img src="{{gallery.img}}" alt="섬네일"></div>
+        <div class="gallery-createTime">작성일 : {{gallery.createdAt | date("YYYY.MM.DD hh:mm:ss")}}</div>
+        {% if gallery.author.id == user.id %}
+        <button class="gallery-updateBtn" onclick="updateGallery('{{gallery.id}}')">수정</button>
+        <button class="gallery-deleteBtn" onclick="deleteGallery('{{gallery.id}}')">삭제</button>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% endblock %}
+
+{% block script %}
+  <script>
+    if (document.getElementById('img')) {
+      document.getElementById('img').addEventListener('change', function(e) {
+        const formData = new FormData();
+        console.log(this, this.files);
+        formData.append('img', this.files[0]);
+        axios.post('/gallery/img', formData)
+          .then((res) => {
+            document.getElementById('img-url').value = res.data.url;
+            document.getElementById('img-preview').src = res.data.url;
+            document.getElementById('img-preview').style.display = 'inline';
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+      });
+    }
+
+    function deleteGallery(id){
+    $.ajax({
+        type: 'DELETE',
+        url: '/gallery/' + id,
+    }).done(function() {
+        alert("삭제되었습니다.");
+        window.location.reload();
+    }).fail(function (error) {
+        alert(JSON.stringify(error));
+    });
+}
+</script>
+{% endblock %}

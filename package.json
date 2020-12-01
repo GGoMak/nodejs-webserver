@@ -1,7 +1,7 @@
 {
   "name": "webprogramming",
   "version": "0.0.1",
-  "description": "웹프로그래밍 설계 및 실습 과제 1",
+  "description": "웹 프로그래밍 설계 및 실습 과제",
   "main": "app.js",
   "scripts": {
     "start": "nodemon app"

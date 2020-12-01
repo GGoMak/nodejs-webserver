@@ -99,8 +99,8 @@ input[type='text'], input[type='email'], input[type='password'], textarea {
   font-size: 12px;
   cursor: pointer;
 }
-.board-img { text-align: center; }
-.board-img img { max-width: 75%; }
+.gallery-img { text-align: center; }
+.gallery-img img { max-width: 75%; }
 .error-message { color: red; font-weight: bold; }
 #search-form { text-align: right; }
 #join-form { padding: 10px; text-align: center; }

@@ -32,8 +32,20 @@
         {% endif %}
         </div>
       </div>
+
+      <div class="nav">
+        {% if user %}
+          <div>
+            <a href="/about" class="btn">about</a>
+            <a href="/board" class="btn">board</a>
+            <a href="/gallery" class="btn">gallery</a>
+          </div>
+        {% endif %}
+      </div>
+      
       {% block content %}
       {% endblock %}
+
     </div>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script>
