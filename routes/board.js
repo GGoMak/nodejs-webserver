@@ -40,12 +40,19 @@ router.post('/', isLoggedIn, async (req, res, next) => {
 });
 
 router.put('/:id', isLoggedIn, async(req, res, next) => {
+
+    console.log("id" + req.params.id);
+    console.log("title" + req.body.title);
+    console.log("content" + req.body.content);
+
     try {
         await Board.updateOne({
             _id: req.params.id,
         }, {
-            content: req.content,
+            title: req.body.title,
+            content: req.body.content,
         });
+        res.end('{"success" : "Updated Successfully", "status" : 200}');
     } catch (error) {
         console.error(error);
         next(error);
@@ -57,7 +64,7 @@ router.delete('/:id', isLoggedIn, async(req, res, next) => {
         await Board.deleteOne({
             _id: req.params.id,
         });
-        res.end('{"success" : "Updated Successfully", "status" : 200}');
+        res.end('{"success" : "Deleted Successfully", "status" : 200}');
     } catch (error) {
         console.error(error);
         next(error);

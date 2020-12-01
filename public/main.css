@@ -89,7 +89,7 @@ input[type='text'], input[type='email'], input[type='password'], textarea {
   position: relative;
   margin-bottom: 10px;
 }
-.board-author { display: inline-block; font-weight: bold; margin-right: 10px; }
+.board-title { display: inline-block; font-weight: bold; margin-right: 10px; }
 .board-follow {
   padding: 1px 5px;
   background: #fff;
