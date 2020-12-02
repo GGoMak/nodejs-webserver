@@ -12,6 +12,10 @@ const gallerySchema = new Schema({
     required: true,
     ref: 'User',
   },
+  content: {
+    type: String,
+    required: false,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

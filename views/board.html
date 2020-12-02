@@ -1,14 +1,22 @@
 {% extends 'layout.html' %}
 
 {% block content %}
+
+  <form id="search-form" action="/board/search">
+    <select id="search_type" name="type">
+        <option value="content">본문</option>
+        <option value="author">작성자</option>
+        <option value="hashtag">해시태그</option>
+    </select>
+    <input type="text" name="keyword" placeholder="검색어 입력">
+    <button class="btn">검색</button>
+  </form>
   <div class="boards">
     <form id="board-form" action="/board" method="POST">
       <p>제목</label>
       <textarea id="title" name="title" maxlength="30" style="width: 100%; resize: none;"></textarea>
       <p>내용</label>
       <textarea id="content" name="content" maxlength="300" style="width: 100%; height: 150px; resize: none;"></textarea>
-      <p>해시태그</p>
-      <textarea id="hashtag" name="hashtag" style="width: 100%; resize: none;"></textarea>
       <button class="btn">글쓰기</button>
     </form>
   </div>
@@ -20,6 +28,9 @@
     <div class="board-title" style="margin-bottom: 10px;" id="board-title">제목 : {{board.title}}</div>
     <div class="board-author" style="margin-bottom: 10px;" id="board-author">작성자 : {{board.author.nick}}</div>
     <div class="board-content" style="margin-bottom: 10px;" id="board-content">본문 : {{board.content}}</div>
+    {% for hashtag in board.hashtags %}
+    <div class="board-hashtag" style="margin-bottom: 10px;" id="board-hashtag">#{{hashtag.title}} </div>
+    {% endfor %}
     <div class="board-createTime">작성일 : {{board.createdAt | date("YYYY.MM.DD hh:mm:ss")}}</div>
     {% if board.author.id == user.id %}
     <button class="board-updateBtn" onclick="updateBoard('{{board.id}}')">수정</button>

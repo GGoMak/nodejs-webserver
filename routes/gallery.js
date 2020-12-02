@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 const Gallery = require('../schemas/gallery');
+const Hashtag = require('../schemas/hashtag');
 const { isLoggedIn } = require('./middlewares');
 
 const router = express.Router();
@@ -54,8 +55,21 @@ router.post('/', isLoggedIn, upload2.none(), async (req, res, next) => {
   try {
     const gallery = await Gallery.create({
       img: req.body.url,
+      content: req.body.content,
       author: req.user.id,
     });
+
+    const hashtags = req.body.content.match(/#[^\s#]*/g);
+    
+    if (hashtags) {
+      const result = await Promise.all(
+        hashtags.map(tag => {
+          return Hashtag.findOrCreate({
+            title: tag.slice(1).toLowerCase(),
+          });
+        }),
+      );
+    }
     res.redirect('/gallery');
   } catch (error) {
     console.error(error);
@@ -63,30 +77,30 @@ router.post('/', isLoggedIn, upload2.none(), async (req, res, next) => {
   }
 });
 
-router.put('/:id', isLoggedIn, upload2.none(), async (req, res, next) => {
-  try {
-    await Gallery.updateOne({
-      _id: req.params.id,
-    }, {
-      img: req.body.url,
-    });
-    res.end('{"success" : "Gallery Updated Successfully", "status" : 200}');
-  } catch (error) {
-    console.error(error);
-    next(error);
-  }
-});
-
-router.delete('/:id', isLoggedIn, async (req, res, next) => {
-  try{
-    await Gallery.deleteOne({
-      _id: req.params.id,
-    });
-    res.end('{"success" : "Gallery Deleted Successfully", "status" : 200}')
-  } catch (error) {
-    console.error(error);
-    next(error);
-  }
-});
+router.route('/:id')
+  .patch(upload2.none(), async (req, res, next) => {
+    try {
+      const result = await Gallery.update({
+        _id: req.params.id,
+      }, {
+        img: req.body.url,
+      });
+      res.status(201).json(result);
+    } catch (error) {
+      console.error(error);
+      next(error);
+    }
+  })
+  .delete(async (req, res, next) => {
+    try{
+      const result = await Gallery.remove({
+        _id: req.params.id,
+      });
+      res.status(201).json(result);
+    } catch (error) {
+      console.error(error);
+      next(error);
+    }
+  });
 
 module.exports = router;

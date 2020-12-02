@@ -2,6 +2,9 @@ const express = require('express');
 
 const { isLoggedIn } = require('./middlewares');
 const Board = require('../schemas/board');
+const User = require('../schemas/user');
+const Hashtag = require('../schemas/hashtag');
+const { patch } = require('./gallery');
 
 const router = express.Router();
 
@@ -12,59 +15,108 @@ router.use((req, res, next) => {
 
 router.get('/', async (req, res, next) => {
 
-    try {
-        const boards = await Board.find({}).populate('author').sort({ createdAt: -1 });
-        res.render('board', {
-          title: 'board',
-          boards: boards,
-        });
-      } catch (err) {
-        console.error(err);
-        next(err);
-      }
-
+  try {
+    const boards = await Board.find({}).populate('author').sort({ createdAt: -1 });
+    res.render('board', {
+      title: 'board',
+      boards: boards,
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
 });
 
-router.post('/', isLoggedIn, async (req, res, next) => {
+router.get('/search', async (req, res, next) => {
+  const type = req.query.type;
+  const keyword = req.query.keyword;
+
+  if(!keyword) {
+    return res.redirect('/board');
+  }
+
+  if(type === "author"){
     try {
-      const post = await Board.create({
-        title: req.body.title,
-        content: req.body.content,
-        author: req.user,
+      let boards = [];
+      let users = [];
+      users = await User.find({ nick: keyword });
+      boards = await Board.find({ author: users }).populate('author').sort({ createdAt: -1 });
+      res.render('board', {
+        title: 'board',
+        boards: boards,
       });
-      res.redirect('/board');
     } catch (error) {
       console.error(error);
-      next(error);
+      return next(error);
     }
+  }
+  
+  else if(type === "content"){
+    try {
+      let boards = [];
+      boards = await Board.find({ content: { $regex: keyword }}).populate('author').sort({ createdAt: -1 });
+      res.render('board', {
+        title: 'board',
+        boards: boards,
+      });
+    } catch (error) {
+      console.error(error);
+      return next(error);
+    }
+  }
+})
+
+router.post('/', isLoggedIn, async (req, res, next) => {
+  try {
+    const board = await Board.create({
+      title: req.body.title,
+      content: req.body.content,
+      author: req.user,
+    });
+
+    const hashtags = req.body.content.match(/#[^\s#]*/g);
+    
+    if (hashtags) {
+      const result = await Promise.all(
+        hashtags.map(tag => {
+          return Hashtag.findOrCreate({
+            title: tag.slice(1).toLowerCase(),
+          });
+        }),
+      );
+    }
+    res.redirect('/board');
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
 });
 
-router.put('/:id', isLoggedIn, async(req, res, next) => {
-
+router.route('/:id')
+  .patch(async(req, res, next) => {
     try {
-        await Board.updateOne({
+        const result = await Board.update({
             _id: req.params.id,
         }, {
             title: req.body.title,
             content: req.body.content,
         });
-        res.end('{"success" : "Board Updated Successfully", "status" : 200}');
+        res.status(201).json(result);
     } catch (error) {
         console.error(error);
         next(error);
     }
-});
-
-router.delete('/:id', isLoggedIn, async(req, res, next) => {
+  })
+  .delete(async(req, res, next) => {
     try {
-        await Board.deleteOne({
+        const result = await Board.remove({
             _id: req.params.id,
         });
-        res.end('{"success" : "Board Deleted Successfully", "status" : 200}');
+        res.status(201).json(result);
     } catch (error) {
         console.error(error);
         next(error);
     }
-});
+  });
 
 module.exports = router;
