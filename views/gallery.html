@@ -53,16 +53,37 @@
       });
     }
 
-    function deleteGallery(id){
-    $.ajax({
-        type: 'DELETE',
+    function updateGallery(id){
+
+      var data = {
+        url: $('#img-url').val(),
+      }
+
+      $.ajax({
+        type: 'PUT',
         url: '/gallery/' + id,
-    }).done(function() {
-        alert("삭제되었습니다.");
+        dataType: 'json',
+        contentType:'application/json; charset=utf-8',
+        data: JSON.stringify(data)
+      }).done(function() {
+        alert("수정되었습니다.");
         window.location.reload();
-    }).fail(function (error) {
+      }).fail(function (error) {
         alert(JSON.stringify(error));
-    });
-}
+      });
+
+    }
+
+    function deleteGallery(id){
+      $.ajax({
+          type: 'DELETE',
+          url: '/gallery/' + id,
+      }).done(function() {
+          alert("삭제되었습니다.");
+          window.location.reload();
+      }).fail(function (error) {
+          alert(JSON.stringify(error));
+      });
+    }
 </script>
 {% endblock %}

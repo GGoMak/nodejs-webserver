@@ -63,16 +63,30 @@ router.post('/', isLoggedIn, upload2.none(), async (req, res, next) => {
   }
 });
 
+router.put('/:id', isLoggedIn, upload2.none(), async (req, res, next) => {
+  try {
+    await Gallery.updateOne({
+      _id: req.params.id,
+    }, {
+      img: req.body.url,
+    });
+    res.end('{"success" : "Gallery Updated Successfully", "status" : 200}');
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
 router.delete('/:id', isLoggedIn, async (req, res, next) => {
-    try{
-        await Gallery.deleteOne({
-            _id: req.params.id,
-        });
-        res.end('{"success" : "Gallery Deleted Successfully", "status" : 200}')
-    } catch (error) {
-        console.error(error);
-        next(error);
-    }
+  try{
+    await Gallery.deleteOne({
+      _id: req.params.id,
+    });
+    res.end('{"success" : "Gallery Deleted Successfully", "status" : 200}')
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
 });
 
 module.exports = router;
