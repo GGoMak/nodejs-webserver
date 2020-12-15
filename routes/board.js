@@ -35,9 +35,8 @@ router.get('/search', async (req, res, next) => {
     return res.redirect('/board');
   }
 
-  if(type === "author"){
+  if(type === "author") {
     try {
-      let boards = [];
       let users = [];
       users = await User.find({ nick: keyword });
       boards = await Board.find({ author: users }).populate('author').sort({ createdAt: -1 });
@@ -51,7 +50,7 @@ router.get('/search', async (req, res, next) => {
     }
   }
   
-  else if(type === "content"){
+  else if(type === "content") {
     try {
       let boards = [];
       boards = await Board.find({ content: { $regex: keyword }}).populate('author').sort({ createdAt: -1 });
@@ -62,6 +61,22 @@ router.get('/search', async (req, res, next) => {
     } catch (error) {
       console.error(error);
       return next(error);
+    }
+  }
+
+  else if(type === "hashtag") {
+    try {
+      let boards = [];
+      let searchKeyword = '#' + keyword;
+      console.log(searchKeyword);
+      boards = await Board.find({ content: { $regex: searchKeyword }}).populate('author').sort({ createdAt: -1 });
+      res.render('board', {
+        title: 'board',
+        boards: boards,
+      });
+    } catch (error) {
+      console.error(error);
+        return next(error);
     }
   }
 })
@@ -93,7 +108,7 @@ router.post('/', isLoggedIn, async (req, res, next) => {
 });
 
 router.route('/:id')
-  .patch(async(req, res, next) => {
+  .put(async(req, res, next) => {
     try {
         const result = await Board.update({
             _id: req.params.id,

@@ -9,6 +9,11 @@ const { isLoggedIn } = require('./middlewares');
 
 const router = express.Router();
 
+router.use((req, res, next) => {
+  res.locals.user = req.user;
+  next();
+});
+
 try {
   fs.readdirSync('uploads');
 } catch (error) {
@@ -41,6 +46,21 @@ router.get('/', async (req, res, next) => {
         next(err);
       }
 
+});
+
+router.get('/search', async (req, res, next) => {
+  const keyword = req.query.keyword;
+
+  try{
+    const gallerys = await Gallery.find({ content: { $regex: keyword}}).populate('author').sort({ createdAt: -1});
+    res.render('gallery', {
+      title: 'gallery',
+      gallerys: gallerys,
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
 });
 
 // 미리보기 이미지 업로드
@@ -78,7 +98,7 @@ router.post('/', isLoggedIn, upload2.none(), async (req, res, next) => {
 });
 
 router.route('/:id')
-  .patch(upload2.none(), async (req, res, next) => {
+  .put(upload2.none(), async (req, res, next) => {
     try {
       const result = await Gallery.update({
         _id: req.params.id,

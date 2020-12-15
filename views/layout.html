@@ -15,7 +15,9 @@
           {% if user and user.id %}
             <div class="user-name">{{'안녕하세요! ' + user.nick + '님'}}</div>
           <input id="my-id" type="hidden" value="{{user.id}}">
+          <a id="my-profile" href="/msg" class="btn">메신저</a>
           <a id="logout" href="/auth/logout" class="btn">로그아웃</a>
+          
         {% else %}
           <form id="login-form" action="/auth/login" method="post">
             <div class="input-group">

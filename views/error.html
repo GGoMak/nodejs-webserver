@@ -1,7 +1,9 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-  <h1>{{message}}</h1>
-  <h2>{{error.status}}</h2>
-  <pre>{{error.stack}}</pre>
+  <input id="alert" name="alert" type="hidden" value="{{message}}">
+  <script>
+    var error  = document.getElementById('alert').value;
+    alert(error)
+  </script>
 {% endblock %}

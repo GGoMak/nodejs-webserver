@@ -2,6 +2,13 @@
 
 {% block content %}
     <div class="timeline" style="width: 100%;">
+      <form id="search-form" action="/gallery/search">
+        <select id="search_type" name="type">
+            <option value="hashtag">해시태그</option>
+        </select>
+        <input type="text" name="keyword" placeholder="검색어 입력">
+        <button class="btn">검색</button>
+      </form>
       {% if user %}
         <div>
           <form id="board-form" action="/gallery" method="post" enctype="multipart/form-data">

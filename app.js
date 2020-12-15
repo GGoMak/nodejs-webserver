@@ -21,11 +21,13 @@ function setUpNunjucks(expressApp) {
 }
 
 dotenv.config();
+const webSocket = require('./socket');
 const pageRouter = require('./routes/page')
 const authRouter = require('./routes/auth');
 const aboutRouter = require('./routes/about');
 const boardRouter = require('./routes/board');
 const galleryRouter = require('./routes/gallery');
+const messageRouter = require('./routes/message');
 const connect = require('./schemas');
 const passportConfig = require('./passport');
 
@@ -41,13 +43,7 @@ nunjucks.configure('views', {
 connect();
 setUpNunjucks();
 
-app.use(morgan('dev'));
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/img', express.static(path.join(__dirname, 'uploads')));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser(process.env.COOKIE_SECRET));
-app.use(session({
+const sessionMiddleware = session({
   resave: false,
   saveUninitialized: false,
   secret: process.env.COOKIE_SECRET,
@@ -55,7 +51,15 @@ app.use(session({
     httpOnly: true,
     secure: false,
   },
-}));
+});
+
+app.use(morgan('dev'));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/img', express.static(path.join(__dirname, 'uploads')));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser(process.env.COOKIE_SECRET));
+app.use(sessionMiddleware);
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -65,6 +69,7 @@ app.use('/auth', authRouter);
 app.use('/about', aboutRouter);
 app.use('/board', boardRouter);
 app.use('/gallery', galleryRouter);
+app.use('/msg', messageRouter);
 
 app.use((req, res, next) => {
   const error =  new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
@@ -79,6 +84,8 @@ app.use((err, req, res, next) => {
   res.render('error');
 });
 
-app.listen(app.get('port'), () => {
+const server = app.listen(app.get('port'), () => {
   console.log(app.get('port'), '번 포트에서 대기중');
 });
+
+webSocket(server, app, sessionMiddleware);

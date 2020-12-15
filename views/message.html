@@ -1,0 +1,96 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+  <fieldset>
+    <legend>채팅하기</legend>
+    <form action="/msg" method="post">
+      <div>
+        <input type="text" name="receiver" placeholder="수신자">
+      </div>
+      <div>
+        <button type="submit">채팅시작</button>
+      </div>
+    </form>
+  </fieldset>
+
+  <fieldset>
+    <legend>채팅 목록</legend>
+    <table>
+      <thead>
+      <tr>
+        <th>목록</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for room in rooms %}
+        <tr data-id="{{room._id}}">
+          <td>{{room.title}} 대화</td>
+          <td>
+            <button
+              data-id="{{room._id}}"
+              class="join-btn"
+            >채팅하기
+            </button>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <div class="error-message">{{error}}</div>
+  </fieldset>
+
+{% endblock %}
+
+{% block script %}
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io.connect('http://localhost:8080/msg', { // 네임스페이스
+    path: '/socket.io',
+  });
+
+  socket.on('newRoom', function (data) { // 새 방 이벤트 시 새 방 생성
+    const tr = document.createElement('tr');
+    let td = document.createElement('td');
+    td.textContent = data.title;
+    tr.appendChild(td);
+    td = document.createElement('td');
+    td.textContent = data.password ? '비밀방' : '공개방';
+    tr.appendChild(td);
+    td = document.createElement('td');
+    td.textContent = data.max;
+    tr.appendChild(td);
+    td = document.createElement('td');
+    td.style.color = data.owner;
+    td.textContent = data.owner;
+    tr.appendChild(td);
+    td = document.createElement('td');
+    const button = document.createElement('button');
+    button.textContent = '입장';
+    button.dataset.password = data.password ? 'true' : 'false';
+    button.dataset.id = data._id;
+    button.addEventListener('click', addBtnEvent);
+    td.appendChild(button);
+    tr.appendChild(td);
+    tr.dataset.id = data._id;
+    document.querySelector('table tbody').appendChild(tr); // 화면에 추가
+  });
+
+  socket.on('removeRoom', function (data) { // 방 제거 이벤트 시 id가 일치하는 방 제거
+    document.querySelectorAll('tbody tr').forEach(function (tr) {
+      if (tr.dataset.id === data) {
+        tr.parentNode.removeChild(tr);
+      }
+    });
+  });
+
+  function addBtnEvent(e) { // 방 입장 클릭 시
+    location.href = '/msg/' + e.target.dataset.id;
+  }
+
+  document.querySelectorAll('.join-btn').forEach(function (btn) {
+    btn.addEventListener('click', addBtnEvent);
+  });
+
+</script>
+  
+{% endblock %}
