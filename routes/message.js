@@ -58,7 +58,7 @@ router.post('/', async (req, res, next) => {
       title: title,
     });
     const io = req.app.get('io');
-    io.of('/room').emit('newRoom', newRoom);
+    io.of('/msg').emit('newRoom', newRoom);
     res.redirect(`/msg`);
   } catch (error) {
     console.error(error);
@@ -73,10 +73,11 @@ router.get('/:id', async (req, res, next) => {
     if (!room) {
       return res.redirect('/?error=존재하지 않는 방입니다.');
     }
-    const chats = await Chat.find({ room: room._id }).sort('createdAt');
+    const chats = await Chat.find({ room: room._id }).populate('user').sort('createdAt');
     return res.render('chat', {
       room,
       title: room.title,
+      user: req.user,
       chats,
     });
   } catch (error) {
@@ -89,7 +90,7 @@ router.post('/:id/chat', async (req, res, next) => {
   try {
     const chat = await Chat.create({
       room: req.params.id,
-      user: req.user.nick,
+      user: req.user,
       chat: req.body.chat,
     });
     req.app.get('io').of('/chat').to(req.params.id).emit('chat', chat);

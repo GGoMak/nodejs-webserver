@@ -99,13 +99,6 @@ input[type='text'], input[type='email'], input[type='password'], textarea {
   font-size: 12px;
   cursor: pointer;
 }
-.gallery-img { text-align: center; }
-.gallery-img img { max-width: 75%; }
-.error-message { color: red; font-weight: bold; }
-#search-form { text-align: right; }
-#join-form { padding: 10px; text-align: center; }
-#hashtag-form { text-align: right; }
-footer { text-align: center; }
 
 * { box-sizing: border-box; }
 .mine { text-align: right; }
@@ -140,3 +133,11 @@ table, table th, table td {
   border: 1px solid silver;
   border-collapse: collapse;
 }
+
+.gallery-img { text-align: center; }
+.gallery-img img { max-width: 75%; }
+.error-message { color: red; font-weight: bold; }
+#search-form { text-align: right; }
+#join-form { padding: 10px; text-align: center; }
+#hashtag-form { text-align: right; }
+footer { text-align: center; }

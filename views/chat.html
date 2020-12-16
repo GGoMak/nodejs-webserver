@@ -7,22 +7,18 @@
     <legend>채팅 내용</legend>
     <div id="chat-list">
       {% for chat in chats %}
-        {% if chat.user === user %}
+        {% if chat.user.nick == user.nick %}
           <div class="mine">
-            <div>{{chat.user}}</div>
+            <div>{{chat.user.nick}}</div>
             {% if chat.gif %}}
               <img src="/gif/{{chat.gif}}">
             {% else %}
               <div>{{chat.chat}}</div>
             {% endif %}
           </div>
-        {% elif chat.user === 'system' %}
-          <div class="system">
-            <div>{{chat.chat}}</div>
-          </div>
         {% else %}
           <div class="other">
-            <div>{{chat.user}}</div>
+            <div>{{chat.user.nick}}</div>
             {% if chat.gif %}
               <img src="/gif/{{chat.gif}}">
             {% else %}
@@ -39,6 +35,7 @@
     <input type="text" id="chat" name="chat">
     <button>전송</button>
   </form>
+  
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script>
@@ -63,8 +60,13 @@
     });
     socket.on('chat', function (data) {
       const div = document.createElement('div');
+      if (data.user.nick == '{{user.nick}}') {
+        div.classList.add('mine');
+      } else {
+        div.classList.add('other');
+      }
       const name = document.createElement('div');
-      name.textContent = data.user;
+      name.textContent = data.user.nick;
       div.appendChild(name);
       if (data.chat) {
         const chat = document.createElement('div');
@@ -75,7 +77,6 @@
         gif.src = '/gif/' + data.gif;
         div.appendChild(gif);
       }
-      div.style.color = data.user;
       document.querySelector('#chat-list').appendChild(div);
     });
     document.querySelector('#chat-form').addEventListener('submit', function (e) {
