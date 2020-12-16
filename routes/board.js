@@ -35,7 +35,22 @@ router.get('/search', async (req, res, next) => {
     return res.redirect('/board');
   }
 
-  if(type === "author") {
+  if(type === "id"){
+    try{
+      let users = [];
+      users = await User.find({ email: keyword });
+      boards = await Board.find({ author: users }).populate('author').sort({ createdAt: -1 });
+      res.render('board', {
+        title: 'board',
+        boards: boards,
+      });
+    } catch (error) {
+      console.error(error);
+      return next(error)
+    }
+  }
+
+  else if(type === "nickname") {
     try {
       let users = [];
       users = await User.find({ nick: keyword });
@@ -68,7 +83,7 @@ router.get('/search', async (req, res, next) => {
     try {
       let boards = [];
       let searchKeyword = '#' + keyword;
-      console.log(searchKeyword);
+      
       boards = await Board.find({ content: { $regex: searchKeyword }}).populate('author').sort({ createdAt: -1 });
       res.render('board', {
         title: 'board',

@@ -24,7 +24,7 @@
       <tbody>
       {% for room in rooms %}
         <tr data-id="{{room._id}}">
-          <td>{{room.title}} 대화</td>
+          <td>{{room.title}}</td>
           <td>
             <button
               data-id="{{room._id}}"
@@ -51,25 +51,17 @@
   socket.on('newRoom', function (data) { // 새 방 이벤트 시 새 방 생성
     const tr = document.createElement('tr');
     let td = document.createElement('td');
-    td.textContent = data.title;
+    td.textContent = data.doc.title;
     tr.appendChild(td);
     td = document.createElement('td');
     const button = document.createElement('button');
-    button.textContent = '입장';
-    button.dataset.id = data._id;
+    button.textContent = '채팅하기';
+    button.dataset.id = data.doc._id;
     button.addEventListener('click', addBtnEvent);
     td.appendChild(button);
     tr.appendChild(td);
-    tr.dataset.id = data._id;
+    tr.dataset.id = data.doc._id;
     document.querySelector('table tbody').appendChild(tr); // 화면에 추가
-  });
-
-  socket.on('removeRoom', function (data) { // 방 제거 이벤트 시 id가 일치하는 방 제거
-    document.querySelectorAll('tbody tr').forEach(function (tr) {
-      if (tr.dataset.id === data) {
-        tr.parentNode.removeChild(tr);
-      }
-    });
   });
 
   function addBtnEvent(e) { // 방 입장 클릭 시

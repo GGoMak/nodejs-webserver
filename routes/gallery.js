@@ -49,10 +49,15 @@ router.get('/', async (req, res, next) => {
 });
 
 router.get('/search', async (req, res, next) => {
-  const keyword = req.query.keyword;
-
+  const keyword = '#' + req.query.keyword;
   try{
-    const gallerys = await Gallery.find({ content: { $regex: keyword}}).populate('author').sort({ createdAt: -1});
+    let gallerys = [];
+    if(keyword === '#'){
+      gallerys = await Gallery.find({}).populate('author').sort({ createdAt: -1 });
+    }
+    else{
+      gallerys = await Gallery.find({ content: { $regex: keyword }}).populate('author').sort({ createdAt: -1 });
+    }
     res.render('gallery', {
       title: 'gallery',
       gallerys: gallerys,
@@ -104,6 +109,7 @@ router.route('/:id')
         _id: req.params.id,
       }, {
         img: req.body.url,
+        content: req.body.content,
       });
       res.status(201).json(result);
     } catch (error) {

@@ -5,7 +5,8 @@
   <form id="search-form" action="/board/search">
     <select id="search_type" name="type">
         <option value="content">본문</option>
-        <option value="author">작성자</option>
+        <option value="id">ID</option>
+        <option value="nickname">닉네임</option>
         <option value="hashtag">해시태그</option>
     </select>
     <input type="text" name="keyword" placeholder="검색어 입력">
@@ -48,6 +49,15 @@ function updateBoard(id){
         title: $('#title').val(),
         content: $('#content').val()
     };
+
+    if(!data.title){
+      alert("제목을 작성해주세요.");
+      return;
+    }
+    else if(!data.content){
+      alert("내용을 작성해주세요.");
+      return;
+    }
 
     $.ajax({
         type: 'PUT',

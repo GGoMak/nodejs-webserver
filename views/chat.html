@@ -30,8 +30,6 @@
     </div>
   </fieldset>
   <form action="/chat" id="chat-form" method="post" enctype="multipart/form-data">
-    <label for="gif">GIF 올리기</label>
-    <input type="file" id="gif" name="gif" accept="image/gif">
     <input type="text" id="chat" name="chat">
     <button>전송</button>
   </form>
@@ -42,22 +40,7 @@
     const socket = io.connect('http://localhost:8080/chat', {
       path: '/socket.io',
     });
-    socket.on('join', function (data) {
-      const div = document.createElement('div');
-      div.classList.add('system');
-      const chat = document.createElement('div');
-      div.textContent = data.chat;
-      div.appendChild(chat);
-      document.querySelector('#chat-list').appendChild(div);
-    });
-    socket.on('exit', function (data) {
-      const div = document.createElement('div');
-      div.classList.add('system');
-      const chat = document.createElement('div');
-      div.textContent = data.chat;
-      div.appendChild(chat);
-      document.querySelector('#chat-list').appendChild(div);
-    });
+
     socket.on('chat', function (data) {
       const div = document.createElement('div');
       if (data.user.nick == '{{user.nick}}') {
@@ -79,6 +62,7 @@
       }
       document.querySelector('#chat-list').appendChild(div);
     });
+
     document.querySelector('#chat-form').addEventListener('submit', function (e) {
       e.preventDefault();
       if (e.target.chat.value) {
@@ -92,18 +76,6 @@
             console.error(err);
           });
       }
-    });
-    document.querySelector('#gif').addEventListener('change', function (e) {
-      console.log(e.target.files);
-      const formData = new FormData();
-      formData.append('gif', e.target.files[0]);
-      axios.post('/msg/{{room._id}}/gif', formData)
-        .then(() => {
-          e.target.file = null;
-        })
-        .catch((err) => {
-          console.error(err);
-        });
     });
   </script>
 {% endblock %}

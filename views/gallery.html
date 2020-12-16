@@ -33,7 +33,9 @@
         <input type="hidden" value="{{gallery.author.id}}" class="gallery-user-id">
         <input type="hidden" value="{{gallery.id}}" class="board-id" id="gallery-id">
         <div class="gallery-author" style="margin-bottom: 10px;" id="gallery-author">작성자 : {{gallery.author.nick}}</div>
-        <div class="gallery-img"><img src="{{gallery.img}}" alt="섬네일"></div>
+        {% if gallery.img %}
+        <div class="gallery-img"><img src="{{gallery.img}}" alt="사진없음"></div>
+        {% endif %}
         <div class="gallery-content" style="margin-bottom: 10px" id="gallery-content">{{gallery.content}}</div>
         <div class="gallery-createTime">작성일 : {{gallery.createdAt | date("YYYY.MM.DD hh:mm:ss")}}</div>
         {% if gallery.author.id == user.id %}
@@ -46,6 +48,7 @@
 
 {% block script %}
   <script>
+
     if (document.getElementById('img')) {
       document.getElementById('img').addEventListener('change', function(e) {
         const formData = new FormData();
@@ -67,6 +70,11 @@
 
       var data = {
         url: $('#img-url').val(),
+      }
+
+      if(!data.url){
+        alert("사진을 첨부하세요.");
+        return;
       }
 
       $.ajax({

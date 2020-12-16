@@ -4,6 +4,12 @@
   <input id="alert" name="alert" type="hidden" value="{{message}}">
   <script>
     var error  = document.getElementById('alert').value;
-    alert(error)
+
+    if(error.indexOf("need_img") != -1){
+      alert("이미지를 첨부해주세요.");
+    }
+    else{
+      alert(error);
+    }
   </script>
 {% endblock %}

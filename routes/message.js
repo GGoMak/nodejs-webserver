@@ -19,7 +19,6 @@ router.use((req, res, next) => {
 router.get('/', async (req, res, next) => {
     try {
       const rooms = await Room.find().or([{ receiver: req.user._id }, { sender: req.user._id }]);
-      
       const nick = [];
 
       for(room in rooms){
@@ -46,11 +45,15 @@ router.get('/', async (req, res, next) => {
 router.post('/', async (req, res, next) => {
   try {
     const receiver = await User.findOne({ nick: req.body.receiver });
-    console.log(receiver);
-    if(receiver.nick === req.user.nick){
+    
+    if(!receiver){
+      throw new Error("사용자가 존재하지 않습니다.");
+    }
+
+    else if(receiver.nick === req.user.nick){
       throw new Error("자기 자신과는 대화할 수 없습니다.");
     }
-    const title = req.user.nick + '님과 ' + receiver.nick + '님의';
+    const title = req.user.nick + '님과 ' + receiver.nick + '님의 대화';
 
     const newRoom = await Room.findOrCreate({
       sender: req.user._id,
@@ -59,6 +62,7 @@ router.post('/', async (req, res, next) => {
     });
     const io = req.app.get('io');
     io.of('/msg').emit('newRoom', newRoom);
+    console.log(newRoom);
     res.redirect(`/msg`);
   } catch (error) {
     console.error(error);
