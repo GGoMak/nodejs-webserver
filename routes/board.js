@@ -81,10 +81,21 @@ router.get('/search', async (req, res, next) => {
 
   else if(type === "hashtag") {
     try {
-      let boards = [];
-      let searchKeyword = '#' + keyword;
+      let hashtags = await Hashtag.findOne({ title: keyword });
+      let boards = []
+
+      if(!hashtags){
+        res.render('board', {
+          title: 'board',
+          boards: [],
+        })
+        return;
+      }
       
-      boards = await Board.find({ content: { $regex: searchKeyword }}).populate('author').sort({ createdAt: -1 });
+      for(let i = 0; i < hashtags.boards.length; i++){
+        boards.push(await Board.findOne({ _id: hashtags.boards[i] }).populate('author'));
+      }
+
       res.render('board', {
         title: 'board',
         boards: boards,
@@ -102,17 +113,29 @@ router.post('/', isLoggedIn, async (req, res, next) => {
       title: req.body.title,
       content: req.body.content,
       author: req.user,
+      
     });
 
     const hashtags = req.body.content.match(/#[^\s#]*/g);
     
     if (hashtags) {
       const result = await Promise.all(
-        hashtags.map(tag => {
-          return Hashtag.findOrCreate({
-            title: tag.slice(1).toLowerCase(),
-          });
-        }),
+        hashtags.map(async tag => {
+          let str = tag.slice(1).toLowerCase();
+          const res = await Hashtag.findOne({ title : str });
+          
+          if(res){
+            return Hashtag.findOneAndUpdate(
+              { title: str },
+              { $push: { boards: board } });
+          }
+          else{
+            return Hashtag.create({
+              title: tag.slice(1).toLowerCase(),
+              boards: board,
+            })
+          }
+        })
       );
     }
     res.redirect('/board');

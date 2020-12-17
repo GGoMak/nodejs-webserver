@@ -15,5 +15,10 @@ const hashtagSchema = new Schema({
   }],
 });
 
+hashtagSchema.methods.addBoard = function (info) {
+  this.boards.push(info);
+  return this.save();
+};
+
 hashtagSchema.plugin(findOrCreate);
 module.exports = mongoose.model('hashtag', hashtagSchema);

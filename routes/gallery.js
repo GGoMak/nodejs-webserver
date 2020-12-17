@@ -49,15 +49,23 @@ router.get('/', async (req, res, next) => {
 });
 
 router.get('/search', async (req, res, next) => {
-  const keyword = '#' + req.query.keyword;
+  const keyword = req.query.keyword;
   try{
     let gallerys = [];
-    if(keyword === '#'){
-      gallerys = await Gallery.find({}).populate('author').sort({ createdAt: -1 });
+    let hashtags = await Hashtag.findOne({ title: keyword });
+
+    if(!hashtags){
+      res.render('gallery', {
+        title: 'gallery',
+        gallerys: [],
+      })
+      return;
     }
-    else{
-      gallerys = await Gallery.find({ content: { $regex: keyword }}).populate('author').sort({ createdAt: -1 });
+
+    for(let i = 0; i < hashtags.boards.length; i++){
+      gallerys.push(await Gallery.findOne({ _id: hashtags.boards[i] }).populate('author'));
     }
+
     res.render('gallery', {
       title: 'gallery',
       gallerys: gallerys,
@@ -88,11 +96,22 @@ router.post('/', isLoggedIn, upload2.none(), async (req, res, next) => {
     
     if (hashtags) {
       const result = await Promise.all(
-        hashtags.map(tag => {
-          return Hashtag.findOrCreate({
-            title: tag.slice(1).toLowerCase(),
-          });
-        }),
+        hashtags.map(async tag => {
+          let str = tag.slice(1).toLowerCase();
+          const res = await Hashtag.findOne({ title : str });
+          
+          if(res){
+            return Hashtag.findOneAndUpdate(
+              { title: str },
+              { $push: { boards: gallery } });
+          }
+          else{
+            return Hashtag.create({
+              title: tag.slice(1).toLowerCase(),
+              boards: gallery,
+            })
+          }
+        })
       );
     }
     res.redirect('/gallery');

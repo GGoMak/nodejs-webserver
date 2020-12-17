@@ -14,6 +14,8 @@
   </form>
   <div class="boards">
     <form id="board-form" action="/board" method="POST">
+      <input type="hidden" id="id" name="id">
+      <input type="hidden" id="createdAt" name="createdAt">
       <p>제목</label>
       <textarea id="title" name="title" maxlength="30" style="width: 100%; resize: none;"></textarea>
       <p>내용</label>
