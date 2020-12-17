@@ -1,0 +1,72 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div>
+  <form id="twit-form" action="/gallery/modify/{{gallerys.id}}" method="put" enctype="multipart/form-data">
+    <div>
+      <p>내용</label>
+      <textarea id="content" name="content" maxlength="300" style="width: 100%; height: 150px; resize: none;">{{gallerys.content}}</textarea>
+      <div class="img-preview">
+        <img id="img-preview" src="{{gallerys.img}}" width="250" alt="미리보기">
+        <input id="img-url" type="hidden" name="img-url" value="{{gallerys.img}}">
+      </div>
+      <label id="img-label" for="img">사진 업로드</label>
+      <input id="img" type="file" accept="image/*">
+      <button id="boatd-btn" onclick="updateGallery('{{gallerys.id}}')" class="btn">수정하기</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block script %}
+  <script>
+  if (document.getElementById('img')) {
+      document.getElementById('img').addEventListener('change', function(e) {
+        const formData = new FormData();
+        console.log(this, this.files);
+        formData.append('img', this.files[0]);
+        axios.post('/gallery/img', formData)
+          .then((res) => {
+            document.getElementById('img-url').value = res.data.url;
+            document.getElementById('img-preview').src = res.data.url;
+            document.getElementById('img-preview').style.display = 'inline';
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+      });
+    }
+
+  function updateGallery(id){
+  
+      var data = {
+          id: id,
+          url: $('#img-url').val(),
+          content: $('#content').val()
+      };
+  
+      if(!data.content){
+        alert("해시태그를 작성해주세요.");
+        return;
+      }
+      else if(!data.url){
+        alert("사진을 첨부해주세요.");
+        return;
+      }
+  
+      $.ajax({
+          type: 'PUT',
+          url: '/gallery/modify/' + id,
+          dataType: 'json',
+          contentType:'application/json; charset=utf-8',
+          data: JSON.stringify(data)
+      }).done(function() {
+          alert("수정되었습니다.");
+          window.location.href = '/gallery';
+      }).fail(function (error) {
+          alert(JSON.stringify(error));
+      });
+  
+  }
+  </script>
+  {% endblock %}

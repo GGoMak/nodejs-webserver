@@ -4,7 +4,6 @@ const path = require('path');
 const fs = require('fs');
 
 const Gallery = require('../schemas/gallery');
-const Hashtag = require('../schemas/hashtag');
 const { isLoggedIn } = require('./middlewares');
 
 const router = express.Router();
@@ -34,6 +33,8 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
+const upload2 = multer();
+
 router.get('/', async (req, res, next) => {
     try {
         const gallerys = await Gallery.find({}).populate('author').sort({ createdAt: -1 });
@@ -48,24 +49,49 @@ router.get('/', async (req, res, next) => {
 
 });
 
-router.get('/search', async (req, res, next) => {
-  const keyword = req.query.keyword;
+router.get('/modify/:id', async (req, res, next) => {
   try{
-    let gallerys = [];
-    let hashtags = await Hashtag.findOne({ title: keyword });
+    const gallerys = await Gallery.findOne({ _id: req.params.id });
+    console.log(gallerys);
+    res.render('modifygallery',{
+      title: 'modifygallery',
+      gallerys: gallerys,
+      url: '/img/' + gallerys.url,
+    });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
+});
 
-    if(!hashtags){
-      res.render('gallery', {
-        title: 'gallery',
-        gallerys: [],
-      })
-      return;
+router.put('/modify/:id', isLoggedIn, upload2.none(), async (req, res, next) => {
+  try {
+    const hashtags = req.body.content.match(/#[^\s#]*/g);
+
+    const result = await Gallery.update({
+        _id: req.params.id,
+    }, {
+        img: req.body.url,
+        content: req.body.content,
+        hashtags: hashtags,
+        updatedAt: Date.now(),
+    });
+    res.status(201).json(result);
+} catch (error) {
+    console.error(error);
+    next(error);
+}
+});
+
+router.get('/search', async (req, res, next) => {
+  try{
+    const keyword = '#' + req.query.keyword;
+
+    if(keyword === '#'){
+      throw new Error("검색어를 입력해주세요.");
     }
 
-    for(let i = 0; i < hashtags.boards.length; i++){
-      gallerys.push(await Gallery.findOne({ _id: hashtags.boards[i] }).populate('author'));
-    }
-
+    let gallerys =  await Gallery.find({ hashtags: { $in: keyword }}).populate('author').sort({ createdAt: -1 });
     res.render('gallery', {
       title: 'gallery',
       gallerys: gallerys,
@@ -83,37 +109,16 @@ router.post('/img', isLoggedIn, upload.single('img'), (req, res) => {
 });
 
 // 사진 업로드
-const upload2 = multer();
 router.post('/', isLoggedIn, upload2.none(), async (req, res, next) => {
   try {
+    const hashtags = req.body.content.match(/#[^\s#]*/g);
+
     const gallery = await Gallery.create({
       img: req.body.url,
       content: req.body.content,
       author: req.user.id,
+      hashtags: hashtags,
     });
-
-    const hashtags = req.body.content.match(/#[^\s#]*/g);
-    
-    if (hashtags) {
-      const result = await Promise.all(
-        hashtags.map(async tag => {
-          let str = tag.slice(1).toLowerCase();
-          const res = await Hashtag.findOne({ title : str });
-          
-          if(res){
-            return Hashtag.findOneAndUpdate(
-              { title: str },
-              { $push: { boards: gallery } });
-          }
-          else{
-            return Hashtag.create({
-              title: tag.slice(1).toLowerCase(),
-              boards: gallery,
-            })
-          }
-        })
-      );
-    }
     res.redirect('/gallery');
   } catch (error) {
     console.error(error);
@@ -122,20 +127,6 @@ router.post('/', isLoggedIn, upload2.none(), async (req, res, next) => {
 });
 
 router.route('/:id')
-  .put(upload2.none(), async (req, res, next) => {
-    try {
-      const result = await Gallery.update({
-        _id: req.params.id,
-      }, {
-        img: req.body.url,
-        content: req.body.content,
-      });
-      res.status(201).json(result);
-    } catch (error) {
-      console.error(error);
-      next(error);
-    }
-  })
   .delete(async (req, res, next) => {
     try{
       const result = await Gallery.remove({

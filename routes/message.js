@@ -44,7 +44,7 @@ router.get('/', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
   try {
-    const receiver = await User.findOne({ nick: req.body.receiver });
+    const receiver = await User.findOne({ email: req.body.receiver });
     
     if(!receiver){
       throw new Error("사용자가 존재하지 않습니다.");

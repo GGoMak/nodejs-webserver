@@ -1,0 +1,57 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+    <div id="twit-form">
+      <input type="hidden" name="id" value={{boards.id}}>
+      <div class="input-group">
+        <label>제목</label>
+        <textarea id="title" name="title" maxlength="50" style="resize: none;">{{boards.title}}</textarea>
+      </div>
+      <div class="input-group">
+        <label>내용</label>
+        <textarea id="content" name="content" maxlength="140" style="resize: none;">{{boards.content}}</textarea>
+      </div>
+      <div>
+        <button id="twit-btn" class="btn" onclick="updateBoard('{{boards.id}}')">수정하기</button>
+      </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+<script>
+
+  function updateBoard(id){
+  
+      var data = {
+          id: id,
+          title: $('#title').val(),
+          content: $('#content').val(),
+      };
+  
+      if(!data.title){
+        alert("제목을 작성해주세요.");
+        return;
+      }
+      else if(!data.content){
+        alert("내용을 작성해주세요.");
+        return;
+      }
+  
+      $.ajax({
+          type: 'PUT',
+          url: '/board/modify/' + id,
+          dataType: 'json',
+          contentType:'application/json; charset=utf-8',
+          data: JSON.stringify(data)
+      }).done(function() {
+          alert("수정되었습니다.");
+          window.location.href = '/board';
+      }).fail(function (error) {
+          alert(JSON.stringify(error));
+      });
+  
+  }
+  </script>
+
+{% endblock %}

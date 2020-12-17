@@ -16,10 +16,11 @@ const gallerySchema = new Schema({
     type: String,
     required: false,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
+  hashtags: [{
+    type: String,
+  }]
+}, {
+  timestamps: true,
 });
 
 module.exports = mongoose.model('Gallery', gallerySchema);

@@ -56,7 +56,7 @@ input[type='text'], input[type='email'], input[type='password'], textarea {
   vertical-align: top;
 }
 @media screen and (min-width: 800px) { .timeline { width: 500px; } }
-#board-form {
+#twit-form {
   border-bottom: 1px solid silver;
   padding: 10px;
   background: lightcoral;
@@ -75,22 +75,24 @@ input[type='text'], input[type='email'], input[type='password'], textarea {
   line-height: 37px;
 }
 #img { display: none; }
-#board { width: 100%; min-height: 72px; }
-#board-btn {
+#twit { width: 100%; min-height: 72px; }
+#title { width: 100%; min-height: 72px; }
+#content { width: 100%; min-height: 72px; }
+#twit-btn {
   float: right;
   color: white;
   background: crimson;
   border: none;
 }
-.board {
+.twit {
   border: 1px solid silver;
   border-radius: 4px;
   padding: 10px;
   position: relative;
   margin-bottom: 10px;
 }
-.board-title { display: inline-block; font-weight: bold; margin-right: 10px; }
-.board-follow {
+.twit-author { display: inline-block; font-weight: bold; margin-right: 10px; }
+.twit-follow {
   padding: 1px 5px;
   background: #fff;
   border: 1px solid silver;
@@ -99,7 +101,13 @@ input[type='text'], input[type='email'], input[type='password'], textarea {
   font-size: 12px;
   cursor: pointer;
 }
-
+.twit-img { text-align: center; }
+.twit-img img { max-width: 75%; }
+.error-message { color: red; font-weight: bold; }
+#search-form { text-align: right; }
+#join-form { padding: 10px; text-align: center; }
+#hashtag-form { text-align: right; }
+footer { text-align: center; }
 * { box-sizing: border-box; }
 .mine { text-align: right; }
 .system { text-align: center; }
@@ -133,11 +141,3 @@ table, table th, table td {
   border: 1px solid silver;
   border-collapse: collapse;
 }
-
-.gallery-img { text-align: center; }
-.gallery-img img { max-width: 75%; }
-.error-message { color: red; font-weight: bold; }
-#search-form { text-align: right; }
-#join-form { padding: 10px; text-align: center; }
-#hashtag-form { text-align: right; }
-footer { text-align: center; }
